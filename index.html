@@ -1,101 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>¡Cuenta atrás para las vacaciones!</title>
+  <meta charset="UTF-8">
+  <title>Cuenta atrás Vacaciones PRO</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to top, #ffe259, #ffa751);
-      color: #fff;
+      font-family: Arial, sans-serif;
+      color: white;
       text-align: center;
-      background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      transition: background 1s;
     }
 
-    .overlay {
-      background-color: rgba(0, 0, 0, 0.5);
-      min-height: 100vh;
-      padding: 60px 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    .container {
+      margin-top: 10vh;
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 6px #000;
+      font-size: 3em;
     }
 
     #contador {
-      font-size: 2.2rem;
-      font-weight: bold;
-      margin-bottom: 30px;
-      text-shadow: 2px 2px 6px #000;
+      font-size: 2.5em;
+      margin: 20px 0;
+    }
+
+    .barra {
+      width: 80%;
+      height: 25px;
+      background: rgba(255,255,255,0.3);
+      margin: 20px auto;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    #progreso {
+      height: 100%;
+      width: 0%;
+      background: limegreen;
+      transition: width 1s;
+    }
+
+    #frase {
+      font-size: 1.3em;
+      margin-top: 20px;
     }
 
     .emoji {
-      font-size: 2.5rem;
-      margin: 10px;
+      font-size: 4em;
+      margin-top: 20px;
     }
 
-    .footer {
-      margin-top: 40px;
-      font-size: 1.2rem;
-      text-shadow: 1px 1px 3px #000;
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .confeti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      top: -10px;
+      animation: caer 3s linear infinite;
+    }
+
+    @keyframes caer {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
     }
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <h1>☀️ ¡Cuenta atrás para las vacaciones! 🌊</h1>
-    <div id="contador">Cargando...</div>
 
-    <div class="emoji">🌴 🏖️ 🍹 🕶️ 🌞 🏄‍♂️</div>
+<div class="container">
+  <h1>🏖️ Cuenta atrás vacaciones</h1>
+  <div id="contador"></div>
 
-    <div class="footer">
-      ¡Prepárate para desconectar y disfrutar al máximo!
-    </div>
+  <div class="barra">
+    <div id="progreso"></div>
   </div>
 
-  <script>
-    // Introduce tu fecha en el formato normal: año, mes (1-12), día
-    const anio = 2026;
-    const mes = 9;   // Agosto
-    const dia = 4;  // 29
+  <div id="frase"></div>
+  <div class="emoji" id="emoji"></div>
 
-    // Creamos la fecha para JavaScript restando 1 al mes
-    const fechaVacaciones = new Date(anio, mes - 1, dia, 15, 0, 0);
+  <button onclick="cambiarFecha()">Cambiar fecha</button>
+</div>
 
-    function actualizarContador() {
-      const ahora = new Date();
-      const diferencia = fechaVacaciones - ahora;
+<script>
+  let fechaVacaciones = localStorage.getItem("fechaVacaciones") || "2026-08-01";
+  const inicio = new Date("2026-01-01");
 
-      if (diferencia <= 0) {
-        document.getElementById("contador").textContent = 
-          "¡Ya empezaron tus vacaciones! 🎉🏖️";
-        return;
-      }
+  const frases = [
+    "Ánimo, ya queda menos 💪",
+    "Modo supervivencia activado 😅",
+    "Esto ya está hecho 😎",
+    "Pensando en la playa 🏖️",
+    "No mires el calendario... o sí 😏"
+  ];
 
-      const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-      const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+  function actualizar() {
+    const ahora = new Date();
+    const fin = new Date(fechaVacaciones);
 
-      document.getElementById("contador").textContent =
-        `${dias} día${dias!==1?'s':''}, ${horas} hora${horas!==1?'s':''}, ${minutos} min`;
+    const diff = fin - ahora;
+
+    if (diff <= 0) {
+      document.getElementById("contador").innerHTML = "🎉 VACACIONES 🎉";
+      lanzarConfeti();
+      return;
     }
 
-    // Actualiza al cargar y cada minuto
-    actualizarContador();
-    setInterval(actualizarContador, 60000);
-  </script>
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutos = Math.floor((diff / (1000 * 60)) % 60);
+    const segundos = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("contador").innerHTML =
+      `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+    // Progreso
+    const porcentaje = ((ahora - inicio) / (fin - inicio)) * 100;
+    document.getElementById("progreso").style.width = porcentaje + "%";
+
+    // Emoji
+    let emoji = "😭";
+    if (dias < 60) emoji = "😐";
+    if (dias < 30) emoji = "😎";
+    if (dias < 7) emoji = "🔥";
+    if (dias < 2) emoji = "🏖️";
+
+    document.getElementById("emoji").innerText = emoji;
+
+    // Frase aleatoria
+    document.getElementById("frase").innerText = frases[Math.floor(Math.random() * frases.length)];
+  }
+
+  function cambiarFecha() {
+    const nueva = prompt("Introduce fecha (YYYY-MM-DD):", fechaVacaciones);
+    if (nueva) {
+      fechaVacaciones = nueva;
+      localStorage.setItem("fechaVacaciones", nueva);
+    }
+  }
+
+  function lanzarConfeti() {
+    for (let i = 0; i < 50; i++) {
+      const div = document.createElement("div");
+      div.classList.add("confeti");
+      div.style.left = Math.random() * 100 + "vw";
+      div.style.background = `hsl(${Math.random()*360},100%,50%)`;
+      div.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(div);
+    }
+  }
+
+  setInterval(actualizar, 1000);
+  actualizar();
+</script>
+
 </body>
 </html>
-
-
