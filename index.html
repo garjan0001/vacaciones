@@ -9,21 +9,21 @@
       font-family: Arial, sans-serif;
       color: white;
       text-align: center;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      transition: background 1s;
+      background: url('fondo.jpg') no-repeat center center fixed;
+      background-size: cover;
     }
 
-    .container {
-      margin-top: 10vh;
+    .overlay {
+      background: rgba(0,0,0,0.5);
+      min-height: 100vh;
+      padding-top: 10vh;
     }
 
-    h1 {
-      font-size: 3em;
-    }
+    h1 { font-size: 3em; }
 
-    #contador {
-      font-size: 2.5em;
-      margin: 20px 0;
+    #contador, #laborables {
+      font-size: 2em;
+      margin: 10px 0;
     }
 
     .barra {
@@ -39,25 +39,16 @@
       height: 100%;
       width: 0%;
       background: limegreen;
-      transition: width 1s;
     }
 
-    #frase {
-      font-size: 1.3em;
-      margin-top: 20px;
-    }
-
-    .emoji {
-      font-size: 4em;
-      margin-top: 20px;
-    }
+    #frase { margin-top: 20px; }
+    .emoji { font-size: 4em; margin-top: 20px; }
 
     button {
       margin-top: 20px;
       padding: 10px 20px;
       border: none;
       border-radius: 10px;
-      font-size: 1em;
       cursor: pointer;
     }
 
@@ -65,23 +56,21 @@
       position: fixed;
       width: 10px;
       height: 10px;
-      background: red;
       top: -10px;
       animation: caer 3s linear infinite;
     }
 
     @keyframes caer {
-      to {
-        transform: translateY(100vh) rotate(360deg);
-      }
+      to { transform: translateY(100vh) rotate(360deg); }
     }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="overlay">
   <h1>🏖️ Cuenta atrás vacaciones</h1>
   <div id="contador"></div>
+  <div id="laborables"></div>
 
   <div class="barra">
     <div id="progreso"></div>
@@ -105,6 +94,19 @@
     "No mires el calendario... o sí 😏"
   ];
 
+  function contarLaborables(inicio, fin) {
+    let count = 0;
+    let fecha = new Date(inicio);
+
+    while (fecha <= fin) {
+      const dia = fecha.getDay();
+      if (dia !== 0 && dia !== 6) count++; // lunes-viernes
+      fecha.setDate(fecha.getDate() + 1);
+    }
+
+    return count;
+  }
+
   function actualizar() {
     const ahora = new Date();
     const fin = new Date(fechaVacaciones);
@@ -113,6 +115,7 @@
 
     if (diff <= 0) {
       document.getElementById("contador").innerHTML = "🎉 VACACIONES 🎉";
+      document.getElementById("laborables").innerHTML = "¡A disfrutar!";
       lanzarConfeti();
       return;
     }
@@ -125,11 +128,13 @@
     document.getElementById("contador").innerHTML =
       `${dias}d ${horas}h ${minutos}m ${segundos}s`;
 
-    // Progreso
+    const laborables = contarLaborables(ahora, fin);
+    document.getElementById("laborables").innerHTML =
+      `📅 Días laborables restantes: ${laborables}`;
+
     const porcentaje = ((ahora - inicio) / (fin - inicio)) * 100;
     document.getElementById("progreso").style.width = porcentaje + "%";
 
-    // Emoji
     let emoji = "😭";
     if (dias < 60) emoji = "😐";
     if (dias < 30) emoji = "😎";
@@ -138,7 +143,6 @@
 
     document.getElementById("emoji").innerText = emoji;
 
-    // Frase aleatoria
     document.getElementById("frase").innerText = frases[Math.floor(Math.random() * frases.length)];
   }
 
