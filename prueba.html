@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Vacaciones - Cuenta Atrás</title>
+    <!-- Google Fonts para tipografía moderna -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-beach: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --bg-mountain: linear-gradient(135deg, #93a5cf 0%, #e4eae5 100%);
+            --bg-city: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --bg-default: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-default);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.8s ease;
+        }
+
+        /* Contenedor principal estilo Dashboard */
+        .dashboard {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* Configuración del viaje */
+        .setup-section {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        input[type="date"], select {
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        /* Bloques del Contador */
+        .countdown-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+
+        .time-block {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 15px;
+            width: 22%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .time-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4a5568;
+            display: block;
+            line-height: 1;
+        }
+
+        .time-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #a0aec0;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Sección de Maleta (Packing List) */
+        .packing-section {
+            text-align: left;
+            border-top: 2px solid #edf2f7;
+            padding-top: 20px;
+        }
+
+        .packing-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .todo-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .todo-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+        }
+
+        .todo-input-group button {
+            background: #4fd1c5;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .todo-input-group button:hover {
+            background: #38b2ac;
+        }
+
+        .list-items {
+            list-style: none;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .list-items li {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f7fafc;
+            color: #4a5568;
+        }
+
+        .list-items li input {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .list-items li.done span {
+            text-decoration: line-through;
+            color: #cbd5e0;
+        }
+
+        /* Mensaje final */
+        #finished-msg {
+            font-size: 1.5rem;
+            color: #38a169;
+            font-weight: bold;
+            display: none;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>🎒 Mis Vacaciones</h1>
+
+        <!-- Configuración Inicial -->
+        <div class="setup-section">
+            <input type="date" id="vacation-date">
+            <select id="theme-select">
+                <option value="default">🌅 Elige ambiente</option>
+                <option value="beach">🏖️ Playa / Relax</option>
+                <option value="mountain">🏔️ Montaña / Aventura</option>
+                <option value="city">🏙️ Ciudad / Turismo</option>
+            </select>
+        </div>
+
+        <!-- Mensaje de fin de cuenta regresiva -->
+        <div id="finished-msg">¡Llegó el día! 🎉 ¡A disfrutar! ✈️</div>
+
+        <!-- Bloques del Reloj en Tiempo Real -->
+        <div class="countdown-container" id="countdown-board">
+            <div class="time-block">
+                <span class="time-number" id="days">00</span>
+                <span class="time-label">Días</span>
+            </div>
+            <div class="time-block">
+                <span class="time-number" id="hours">00</span>
+                <span class="time-label">Horas</span>
+            </div>
+            <div class="time-block">
+                <span class="time-number" id="minutes">00</span>
+                <span class="time-label">Min</span>
+            </div>
+            <div class="time-block">
+                <span class="time-number" id="seconds">00</span>
+                <span class="time-label">Seg</span>
+            </div>
+        </div>
+
+        <!-- Lista de cosas por empacar -->
+        <div class="packing-section">
+            <h3>📝 ¿Qué llevar en la maleta?</h3>
+            <div class="todo-input-group">
+                <input type="text" id="item-input" placeholder="Ej: Pasaporte, protector solar...">
+                <button id="add-btn">Añadir</button>
+            </div>
+            <ul class="list-items" id="packing-list">
+                <!-- Se llenará dinámicamente -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DEL CONTADOR DE TIEMPO REAL ---
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const dateInput = document.getElementById('vacation-date');
+        const board = document.getElementById('countdown-board');
+        const finishedMsg = document.getElementById('finished-msg');
+
+        // Cargar fecha previa si existe en el navegador
+        let targetDate = localStorage.getItem('vacationTarget') || "";
+        if (targetDate) {
+            dateInput.value = targetDate;
+        }
+
+        function updateCountdown() {
+            if (!dateInput.value) return;
+
+            const target = new Date(dateInput.value + "T00:00:00").getTime();
+            const now = new Date().getTime();
+            const difference = target - now;
+
+            if (difference <= 0) {
+                board.style.display = 'none';
+                finishedMsg.style.display = 'block';
+                return;
+            }
+
+            board.style.display = 'flex';
+            finishedMsg.style.display = 'none';
+
+            // Cálculos matemáticos de tiempo
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Renderizar con formato de dos dígitos (01, 02...)
+            daysEl.innerText = d < 10 ? '0' + d : d;
+            hoursEl.innerText = h < 10 ? '0' + h : h;
+            minutesEl.innerText = m < 10 ? '0' + m : m;
+            secondsEl.innerText = s < 10 ? '0' + s : s;
+        }
+
+        // Escuchar cambios de fecha y guardarlos localmente
+        dateInput.addEventListener('change', () => {
+            localStorage.setItem('vacationTarget', dateInput.value);
+            updateCountdown();
+        });
+
+        // Actualización activa cada 1 segundo (1000ms)
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+
+        // --- LÓGICA DE TEMAS / AMBIENTE ---
+        const themeSelect = document.getElementById('theme-select');
+        themeSelect.addEventListener('change', (e) => {
+            document.body.style.background = `var(--bg-${e.target.value})`;
+        });
+
+
+        // --- LÓGICA DE LA LISTA DE EQUIPAJE ---
+        const itemInput = document.getElementById('item-input');
+        const addBtn = document.getElementById('add-btn');
+        const packingList = document.getElementById('packing-list');
+
+        addBtn.addEventListener('click', addItem);
+        itemInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') addItem(); });
+
+        function addItem() {
+            const text = itemInput.value.trim();
+            if (!text) return;
+
+            const li = document.createElement('li');
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.addEventListener('change', (e) => {
