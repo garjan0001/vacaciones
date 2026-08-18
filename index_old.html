@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cuenta atrás Vacaciones PRO</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      text-align: center;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .overlay {
+      background: rgba(0,0,0,0.5);
+      min-height: 100vh;
+      padding-top: 10vh;
+    }
+
+    h1 { font-size: 3em; }
+
+    #contador, #laborables {
+      font-size: 2em;
+      margin: 10px 0;
+    }
+
+    .barra {
+      width: 80%;
+      height: 25px;
+      background: rgba(255,255,255,0.3);
+      margin: 20px auto;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    #progreso {
+      height: 100%;
+      width: 0%;
+      background: limegreen;
+    }
+
+    #frase { margin-top: 20px; }
+    .emoji { font-size: 4em; margin-top: 20px; }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .confeti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      animation: caer 3s linear infinite;
+    }
+
+    @keyframes caer {
+      to { transform: translateY(100vh) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay">
+  <h1>🏖️ Cuenta atrás vacaciones</h1>
+  <div id="contador"></div>
+  <div id="laborables"></div>
+
+  <div class="barra">
+    <div id="progreso"></div>
+  </div>
+
+  <div id="frase"></div>
+  <div class="emoji" id="emoji"></div>
+
+  <button onclick="cambiarFecha()">Cambiar fecha</button>
+</div>
+
+<script>
+  let fechaVacaciones = localStorage.getItem("fechaVacaciones") || "2026-08-01";
+  const inicio = new Date("2026-01-01");
+
+  const frases = [
+    "Ánimo, ya queda menos 💪",
+    "Modo supervivencia activado 😅",
+    "Esto ya está hecho 😎",
+    "Pensando en la playa 🏖️",
+    "No mires el calendario... o sí 😏"
+  ];
+
+  function contarLaborables(inicio, fin) {
+    let count = 0;
+    let fecha = new Date(inicio);
+
+    while (fecha <= fin) {
+      const dia = fecha.getDay();
+      if (dia !== 0 && dia !== 6) count++; // lunes-viernes
+      fecha.setDate(fecha.getDate() + 1);
+    }
+
+    return count;
+  }
+
+  function actualizar() {
+    const ahora = new Date();
+    const fin = new Date(fechaVacaciones);
+
+    const diff = fin - ahora;
+
+    if (diff <= 0) {
+      document.getElementById("contador").innerHTML = "🎉 VACACIONES 🎉";
+      document.getElementById("laborables").innerHTML = "¡A disfrutar!";
+      lanzarConfeti();
+      return;
+    }
+
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutos = Math.floor((diff / (1000 * 60)) % 60);
+    const segundos = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("contador").innerHTML =
+      `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+    const laborables = contarLaborables(ahora, fin);
+    document.getElementById("laborables").innerHTML =
+      `📅 Días laborables restantes: ${laborables}`;
+
+    const porcentaje = ((ahora - inicio) / (fin - inicio)) * 100;
+    document.getElementById("progreso").style.width = porcentaje + "%";
+
+    let emoji = "😭";
+    if (dias < 60) emoji = "😐";
+    if (dias < 30) emoji = "😎";
+    if (dias < 7) emoji = "🔥";
+    if (dias < 2) emoji = "🏖️";
+
+    document.getElementById("emoji").innerText = emoji;
+
+    document.getElementById("frase").innerText = frases[Math.floor(Math.random() * frases.length)];
+  }
+
+  function cambiarFecha() {
+    const nueva = prompt("Introduce fecha (YYYY-MM-DD):", fechaVacaciones);
+    if (nueva) {
+      fechaVacaciones = nueva;
+      localStorage.setItem("fechaVacaciones", nueva);
+    }
+  }
+
+  function lanzarConfeti() {
+    for (let i = 0; i < 50; i++) {
+      const div = document.createElement("div");
+      div.classList.add("confeti");
+      div.style.left = Math.random() * 100 + "vw";
+      div.style.background = `hsl(${Math.random()*360},100%,50%)`;
+      div.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(div);
+    }
+  }
+
+  setInterval(actualizar, 1000);
+  actualizar();
+</script>
+
+</body>
+</html>
